@@ -1,12 +1,16 @@
 package webapp
 
 import org.scalatra.ScalatraServlet
-import model.{LocationMessage, NewsMessage, Position, Network}
+import model._
 import org.scalatra.json._
 import org.json4s.{DefaultFormats, Formats}
 import java.awt.image.BufferedImage
 import java.awt.{Color, Rectangle}
 import javax.imageio.{ImageWriteParam, ImageWriter, ImageIO}
+import model.Position
+import webapp.sendMessagePayload
+import model.NewsMessage
+import model.LocationMessage
 
 
 class Dispatcher extends ScalatraServlet with NativeJsonSupport {
@@ -58,8 +62,10 @@ class Dispatcher extends ScalatraServlet with NativeJsonSupport {
     val buffer = new BufferedImage(Network.Size * 10, Network.Size * 10, BufferedImage.TYPE_INT_ARGB)
     val g = buffer.createGraphics()
     for (n <- Network.nodes.values) {
-      val strength = n.data.get(subject).map(_.strength).getOrElse(0f)
-      g.setColor(new Color(0f, 1f, 0f, strength))
+      val newsStrength = n.data.get(Subject(subject, "news")).map(_.strength).getOrElse(0f)
+      val locStrength = n.data.get(Subject(subject, "loc")).map(_.strength).getOrElse(0f)
+      val progStrength = n.data.get(Subject(subject, "prog")).map(_.strength).getOrElse(0f)
+      g.setColor(new Color(newsStrength, locStrength, progStrength, 1f))
       g.fill(new Rectangle(n.position.x * 10, n.position.y * 10, 10, 10))
     }
 

@@ -24,7 +24,7 @@ object Network {
   def asJson(s: String) = {
 
     val rows = for( x <- 0 until Size) yield {
-      val cells = for (y <- 0 until Size) yield { nodes(Position(x,y)).asDataNodeJson(s) }
+      val cells = for (y <- 0 until Size) yield { nodes(Position(x,y)).asDataNodeJson(Subject(s, "news")) }
       NetworkRow(cells.toList)
     }
     NetworkJson(rows.toList)

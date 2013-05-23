@@ -6,7 +6,7 @@ class DataNode(val position: Position) {
 
   var inflightMessages: List[(Message, Long)] = Nil
   var processedMessageIds: List[Long] = Nil
-  var data: Map[String, DataPoint] = Map()
+  var data: Map[Subject, DataPoint] = Map()
 
   def addNeighbour(node: DataNode) {
     neighbours = node :: neighbours
@@ -24,7 +24,7 @@ class DataNode(val position: Position) {
     }
   }
 
-  def asDataNodeJson(s: String) = {
+  def asDataNodeJson(s: Subject) = {
     val subjectData = data.get(s)
     DataNodeJson(
       subjectData.map(_.payload).getOrElse(""),
@@ -38,7 +38,7 @@ class DataNode(val position: Position) {
       if(!processedMessageIds.contains(m.id)) {
         inflightMessages = (m -> step) :: inflightMessages
 
-        data = data + (m.subject -> DataPoint(m.payload, m.strength, m.`type`))
+        data = data + (Subject(m.subject, m.`type`) -> DataPoint(m.payload, m.strength, m.`type`))
 
         processedMessageIds = m.id :: processedMessageIds
       }
@@ -70,5 +70,6 @@ class DataNode(val position: Position) {
 }
 
 case class DataPoint(payload: String, strength: Float, `type`: String)
+case class Subject(subject: String, `type`: String)
 
 case class DataNodeJson(payload: String, strength: Float, `type`: String)
