@@ -13,7 +13,10 @@ object Network {
     }
   }.toMap
 
-  nodes.values.foreach(n => n.bindNeighbours)
+  def init() {
+    println("network init")
+    nodes.values.foreach(n => n.bindNeighbours)
+  }
 }
 
 case class Position(x: Int, y: Int)
