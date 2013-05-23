@@ -6,9 +6,16 @@ function datamosisCtrl($scope, $http, $timeout) {
 //            return resp.data;
 //        });
 
+    $scope.msgTypes = [
+        {name: "news", t: "news"},
+        {name: "location", t: "loc"},
+        {name: "program", t: "prog"}
+    ]
+
     $scope.sendMsg = function() {
+        console.log($scope.msg.type);
         $http.post('/sendMessage', {
-                type: "news",
+                type: $scope.msg.type,
                 x: $scope.msg.x,
                 y: $scope.msg.y,
                 subject: $scope.msg.subject,

@@ -1,7 +1,7 @@
 package webapp
 
 import org.scalatra.ScalatraServlet
-import model.{NewsMessage, Position, Network}
+import model.{LocationMessage, NewsMessage, Position, Network}
 import org.scalatra.json._
 import org.json4s.{DefaultFormats, Formats}
 import java.awt.image.BufferedImage
@@ -35,6 +35,9 @@ class Dispatcher extends ScalatraServlet with NativeJsonSupport {
     t match {
       case "news" => {
         Network.nodes(pos).receiveMessage(NewsMessage(id, req.subject, req.payload, 1f), Network.step)
+      }
+      case "loc" => {
+        Network.nodes(pos).receiveMessage(LocationMessage(id, req.subject, req.payload, 1f), Network.step)
       }
       case s => println("unknown message type " + s)
     }

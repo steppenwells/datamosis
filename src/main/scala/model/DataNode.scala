@@ -26,7 +26,11 @@ class DataNode(val position: Position) {
 
   def asDataNodeJson(s: String) = {
     val subjectData = data.get(s)
-    DataNodeJson(subjectData.map(_.payload).getOrElse(""), subjectData.map(_.strength).getOrElse(0f))
+    DataNodeJson(
+      subjectData.map(_.payload).getOrElse(""),
+      subjectData.map(_.strength).getOrElse(0f),
+      subjectData.map(_.`type`).getOrElse("")
+    )
   }
 
   def receiveMessage(m: Message, step: Long) {
@@ -34,7 +38,7 @@ class DataNode(val position: Position) {
       if(!processedMessageIds.contains(m.id)) {
         inflightMessages = (m -> step) :: inflightMessages
 
-        data = data + (m.subject -> DataPoint(m.payload, m.strength))
+        data = data + (m.subject -> DataPoint(m.payload, m.strength, m.`type`))
 
         processedMessageIds = m.id :: processedMessageIds
       }
@@ -43,7 +47,8 @@ class DataNode(val position: Position) {
 
   def tick(step: Long) {
     synchronized {
-      data = data.mapValues(d => d.copy(strength = d.strength * 0.96f))
+
+      data = data.mapValues(d => d.copy(strength = d.strength * model.Message.timeDecayFactors(d.`type`)))
 
       for (
         (m, s) <- inflightMessages;
@@ -52,6 +57,7 @@ class DataNode(val position: Position) {
         if (s == step){
           m match {
             case n: NewsMessage => node.receiveMessage(m, s + 1)
+            case l: LocationMessage => node.receiveMessage(l.copy(strength = l.strength * Message.propDecayFactors("loc")), s + 1)
             case _ =>
           }
         }
@@ -63,6 +69,6 @@ class DataNode(val position: Position) {
 
 }
 
-case class DataPoint(payload: String, strength: Float)
+case class DataPoint(payload: String, strength: Float, `type`: String)
 
-case class DataNodeJson(payload: String, strength: Float)
+case class DataNodeJson(payload: String, strength: Float, `type`: String)
