@@ -18,18 +18,7 @@
         </form>
 
     </div>
-    <div class="row">
-        <h3>Raise message</h3>
-        <form>
-            <button ng-click="tick()">tick</button>
-        </form>
-
-    </div>
-    <table>
-        <tr ng-repeat="row in status.rows">
-            <td ng-repeat="node in row.nodes" style="background-color: rgba(0, 255, 0, {{node.strength}});">&nbsp;</td>
-        </tr>
-    </table>
+    <img ng-src="{{simImg}}">
     <div class="row">
         <h3>Raise message</h3>
         <form>

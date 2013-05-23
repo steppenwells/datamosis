@@ -18,16 +18,19 @@ function datamosisCtrl($scope, $http, $timeout) {
         });
     }
 
-    $scope.tick = function() {
-        $http.get('/tick', {
-            params: {subject: $scope.disp.subject}
-        }).then(function(resp){
-            console.log("tick", resp);
-            $scope.status = resp.data;
-        });
+    $scope.count = 0;
 
-        //$timeout($scope.tick , 2000);
+    $scope.tick = function() {
+        $scope.simImg = '/tickImg?subject=' + $scope.disp.subject + '&c=' +  $scope.count++;
+//        $http.get('/tick', {
+//            params: {subject: $scope.disp.subject}
+//        }).then(function(resp){
+//            console.log("tick", resp);
+//            $scope.status = resp.data;
+//        });
+
+        $timeout($scope.tick , 500);
     }
 
-    //$timeout($scope.tick , 2000);
+    $timeout($scope.tick , 500);
 }
