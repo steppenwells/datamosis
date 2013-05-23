@@ -7,7 +7,7 @@ class Dispatcher extends ScalatraServlet {
   println("dispatcher start")
 
   get("/simulation") {
-    "hello world"
+    html.simulation.render()
   }
 
 }
