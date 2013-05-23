@@ -30,30 +30,35 @@ class DataNode(val position: Position) {
   }
 
   def receiveMessage(m: Message, step: Long) {
-    if(!processedMessageIds.contains(m.id)) {
-      inflightMessages = (m -> step) :: inflightMessages
+    synchronized {
+      if(!processedMessageIds.contains(m.id)) {
+        inflightMessages = (m -> step) :: inflightMessages
 
-      data = data + (m.subject -> DataPoint(m.payload, m.strength))
+        data = data + (m.subject -> DataPoint(m.payload, m.strength))
 
-      processedMessageIds = m.id :: processedMessageIds
+        processedMessageIds = m.id :: processedMessageIds
+      }
     }
   }
 
   def tick(step: Long) {
+    synchronized {
+      data = data.mapValues(d => d.copy(strength = d.strength * 0.96f))
 
-    for (
-      (m, s) <- inflightMessages;
-      node <- neighbours
-    ) {
-      if (s == step){
-        m match {
-          case n: NewsMessage => node.receiveMessage(m, s + 1)
-          case _ =>
+      for (
+        (m, s) <- inflightMessages;
+        node <- neighbours
+      ) {
+        if (s == step){
+          m match {
+            case n: NewsMessage => node.receiveMessage(m, s + 1)
+            case _ =>
+          }
         }
       }
-    }
 
-    inflightMessages = inflightMessages.filter{ case ((m, s)) => s > step }
+      inflightMessages = inflightMessages.filter{ case ((m, s)) => s > step }
+    }
   }
 
 }
