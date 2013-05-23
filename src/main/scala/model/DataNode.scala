@@ -4,6 +4,10 @@ class DataNode(val position: Position) {
 
   var neighbours: List[DataNode] = Nil
 
+  var inflightMessages: List[(Message, Long)] = Nil
+  var processedMessageIds: List[Long] = Nil
+  var data: Map[String, DataPoint] = Map()
+
   def addNeighbour(node: DataNode) {
     neighbours = node :: neighbours
   }
@@ -11,7 +15,7 @@ class DataNode(val position: Position) {
   def bindNeighbours {
     for(
       x <- (position.x - 1) to (position.x + 1);
-      y <- (position.x - 1) to (position.y + 1)
+      y <- (position.y - 1) to (position.y + 1)
     ) {
       val nPos = Position(x,y)
       if(nPos != position) {
@@ -20,4 +24,40 @@ class DataNode(val position: Position) {
     }
   }
 
+  def asDataNodeJson(s: String) = {
+    val subjectData = data.get(s)
+    DataNodeJson(subjectData.map(_.payload).getOrElse(""), subjectData.map(_.strength).getOrElse(0f))
+  }
+
+  def receiveMessage(m: Message, step: Long) {
+    if(!processedMessageIds.contains(m.id)) {
+      inflightMessages = (m -> step) :: inflightMessages
+
+      data = data + (m.subject -> DataPoint(m.payload, m.strength))
+
+      processedMessageIds = m.id :: processedMessageIds
+    }
+  }
+
+  def tick(step: Long) {
+
+    for (
+      (m, s) <- inflightMessages;
+      node <- neighbours
+    ) {
+      if (s == step){
+        m match {
+          case n: NewsMessage => node.receiveMessage(m, s + 1)
+          case _ =>
+        }
+      }
+    }
+
+    inflightMessages = inflightMessages.filter{ case ((m, s)) => s > step }
+  }
+
 }
+
+case class DataPoint(payload: String, strength: Float)
+
+case class DataNodeJson(payload: String, strength: Float)

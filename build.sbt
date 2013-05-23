@@ -15,7 +15,8 @@ classpathTypes ~= (_ + "orbit")
 resolvers += "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/"
 
 libraryDependencies ++= Seq(
-  "org.scalatra" %% "scalatra" % "2.2.0",
+  "org.scalatra" %% "scalatra" % "2.2.1",
+  "org.scalatra" %% "scalatra-json" % "2.2.1",
   "org.json4s" %% "json4s-native" % "3.0.0",
   "com.github.scala-incubator.io" %% "scala-io-core" % "0.4.1-seq",
   "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.1-seq",

@@ -2,13 +2,46 @@
 <html lang="en" ng-app>
 <head>
     <meta charset="utf-8">
-    <title>My HTML File</title>
+    <title>Datamosis simulation</title>
     <link rel="stylesheet" href="static/css/bootstrap.css">
     <script src="static/js/angular.js"></script>
+    <script src="static/js/datamosis.js"></script>
 </head>
-<body>
+<body ng-controller="datamosisCtrl">
+<div class="container">
+    <h2>Network</h2>
+    <div class="row">
+        <h3>display strengths for</h3>
+        <form>
+            subject: <input type="text" ng-model="disp.subject" /><br />
+            <button ng-click="tick()">tick</button>
+        </form>
 
-<p>Nothing here {{'yet' + '!'}}</p>
+    </div>
+    <div class="row">
+        <h3>Raise message</h3>
+        <form>
+            <button ng-click="tick()">tick</button>
+        </form>
 
+    </div>
+    <table>
+        <tr ng-repeat="row in status.rows">
+            <td ng-repeat="node in row.nodes" style="background-color: rgba(0, 255, 0, {{node.strength}});">&nbsp;</td>
+        </tr>
+    </table>
+    <div class="row">
+        <h3>Raise message</h3>
+        <form>
+            subject: <input type="text" ng-model="msg.subject" /><br />
+            payload: <input type="text" ng-model="msg.payload" /><br />
+            pos x: <input type="text" ng-model="msg.x" /><br />
+            pos y: <input type="text" ng-model="msg.y" /><br />
+            <button ng-click="sendMsg()">Send</button>
+        </form>
+
+    </div>
+
+</div>
 </body>
 </html>
