@@ -27,10 +27,24 @@ function datamosisCtrl($scope, $http, $timeout) {
         });
     }
 
+    $scope.nodeData = [];
+    $scope.listenAtX = 0;
+    $scope.listenAtY = 0;
+
+    $scope.dispSubject = 'foo';
+
     $scope.count = 0;
 
     $scope.tick = function() {
-        $scope.simImg = '/tickImg?subject=' + $scope.disp.subject + '&c=' +  $scope.count++;
+        $scope.simImg = '/tickImg?subject=' + $scope.dispSubject + '&c=' +  $scope.count++;
+
+        $http.get('/nodeData', {
+            params: {x: $scope.listenAtX, y: $scope.listenAtY}
+        }).then(function(resp){
+            console.log("node data resp", resp)
+            $scope.nodeData = resp.data.nodeData;
+        });
+
 //        $http.get('/tick', {
 //            params: {subject: $scope.disp.subject}
 //        }).then(function(resp){

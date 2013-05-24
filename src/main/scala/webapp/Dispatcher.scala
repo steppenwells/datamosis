@@ -76,7 +76,21 @@ class Dispatcher extends ScalatraServlet with NativeJsonSupport {
     Unit
   }
 
+  get("/nodeData") {
+    contentType = formats("json")
+
+    val pos = Position(params("x").toInt, params("y").toInt)
+    val node = Network.nodes(pos)
+
+    val data = for ((sub, data)<- node.data) yield{
+      NodeDataOutput(sub.`type`, sub.subject, data.payload, data.strength)
+    }
+    NodeDataResponse(data.toList.sortBy(_.strength))
+  }
 }
+
+case class NodeDataOutput(`type`: String, subject: String, payload: String, strength: Float)
+case class NodeDataResponse(nodeData: List[NodeDataOutput])
 
 case class sendMessagePayload(
  `type`: String,
