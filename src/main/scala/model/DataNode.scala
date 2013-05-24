@@ -50,6 +50,8 @@ class DataNode(val position: Position) {
 
       data = data.mapValues(d => d.copy(strength = d.strength * model.Message.timeDecayFactors(d.`type`)))
 
+
+
       for (
         (m, s) <- inflightMessages;
         node <- neighbours
@@ -58,6 +60,13 @@ class DataNode(val position: Position) {
           m match {
             case n: NewsMessage => node.receiveMessage(m, s + 1)
             case l: LocationMessage => node.receiveMessage(l.copy(strength = l.strength * Message.propDecayFactors("loc")), s + 1)
+            case p: ProgramMessage => {
+              if(p.target == node.position) {
+                node.receiveMessage(p.transformToNews, s + 1)
+              } else {
+                node.receiveMessage(p, s + 1)
+              }
+            }
             case _ =>
           }
         }

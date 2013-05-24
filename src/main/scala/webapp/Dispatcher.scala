@@ -7,10 +7,6 @@ import org.json4s.{DefaultFormats, Formats}
 import java.awt.image.BufferedImage
 import java.awt.{Color, Rectangle}
 import javax.imageio.{ImageWriteParam, ImageWriter, ImageIO}
-import model.Position
-import webapp.sendMessagePayload
-import model.NewsMessage
-import model.LocationMessage
 
 
 class Dispatcher extends ScalatraServlet with NativeJsonSupport {
@@ -43,6 +39,10 @@ class Dispatcher extends ScalatraServlet with NativeJsonSupport {
       case "loc" => {
         Network.nodes(pos).receiveMessage(LocationMessage(id, req.subject, req.payload, 1f), Network.step)
       }
+      case "prog" => {
+        val target = Position(req.targetX.get.toInt, req.targetY.get.toInt)
+        Network.nodes(pos).receiveMessage(ProgramMessage(id, req.subject, req.payload, 1f, target), Network.step)
+      }
       case s => println("unknown message type " + s)
     }
   }
@@ -55,18 +55,20 @@ class Dispatcher extends ScalatraServlet with NativeJsonSupport {
   }
 
   get("/tickImg") {
+    val PixelSize = 5
+
     val subject = params("subject")
     contentType = "image/png"
     Network.tick
 
-    val buffer = new BufferedImage(Network.Size * 10, Network.Size * 10, BufferedImage.TYPE_INT_ARGB)
+    val buffer = new BufferedImage(Network.Size * PixelSize, Network.Size * PixelSize, BufferedImage.TYPE_INT_ARGB)
     val g = buffer.createGraphics()
     for (n <- Network.nodes.values) {
       val newsStrength = n.data.get(Subject(subject, "news")).map(_.strength).getOrElse(0f)
       val locStrength = n.data.get(Subject(subject, "loc")).map(_.strength).getOrElse(0f)
       val progStrength = n.data.get(Subject(subject, "prog")).map(_.strength).getOrElse(0f)
       g.setColor(new Color(newsStrength, locStrength, progStrength, 1f))
-      g.fill(new Rectangle(n.position.x * 10, n.position.y * 10, 10, 10))
+      g.fill(new Rectangle(n.position.x * PixelSize, n.position.y * PixelSize, PixelSize, PixelSize))
     }
 
     ImageIO.write(buffer, "png", response.getOutputStream)
@@ -76,4 +78,11 @@ class Dispatcher extends ScalatraServlet with NativeJsonSupport {
 
 }
 
-case class sendMessagePayload(`type`: String, subject: String, payload: String, x: String, y: String)
+case class sendMessagePayload(
+ `type`: String,
+ subject: String,
+ payload: String,
+ x: String,
+ y: String,
+ targetX: Option[String],
+ targetY: Option[String])

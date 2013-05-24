@@ -19,7 +19,9 @@ function datamosisCtrl($scope, $http, $timeout) {
                 x: $scope.msg.x,
                 y: $scope.msg.y,
                 subject: $scope.msg.subject,
-                payload: $scope.msg.payload
+                payload: $scope.msg.payload,
+                targetX: $scope.msg.tarx,
+                targetY: $scope.msg.tary
         }).then(function(resp){
             console.log("message sent", resp);
         });

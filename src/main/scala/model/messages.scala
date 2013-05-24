@@ -31,3 +31,9 @@ case class NewsMessage(val id: Long, val subject: String, val payload: String, v
 case class LocationMessage(val id: Long, val subject: String, val payload: String, val strength: Float) extends Message {
   def `type` = "loc"
 }
+
+case class ProgramMessage(val id: Long, val subject: String, val payload: String, val strength: Float, val target: Position) extends Message {
+  def `type` = "prog"
+
+  def transformToNews = NewsMessage(Network.generateMessageId, subject, payload, strength)
+}
