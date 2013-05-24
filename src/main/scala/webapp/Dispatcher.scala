@@ -6,7 +6,7 @@ import org.scalatra.json._
 import org.json4s.{DefaultFormats, Formats}
 import java.awt.image.BufferedImage
 import java.awt.{Color, Rectangle}
-import javax.imageio.{ImageWriteParam, ImageWriter, ImageIO}
+import javax.imageio.{ImageTypeSpecifier, ImageWriteParam, ImageWriter, ImageIO}
 
 
 class Dispatcher extends ScalatraServlet with NativeJsonSupport {
@@ -55,21 +55,31 @@ class Dispatcher extends ScalatraServlet with NativeJsonSupport {
   }
 
   get("/tickImg") {
-    val PixelSize = 5
+    val PixelSize = 10
 
     val subject = params("subject")
     contentType = "image/png"
     Network.tick
 
-    val buffer = new BufferedImage(Network.Size * PixelSize, Network.Size * PixelSize, BufferedImage.TYPE_INT_ARGB)
+    val buffer = new BufferedImage(Network.Size * PixelSize, Network.Size * PixelSize, BufferedImage.TYPE_INT_RGB)
     val g = buffer.createGraphics()
     for (n <- Network.nodes.values) {
       val newsStrength = n.data.get(Subject(subject, "news")).map(_.strength).getOrElse(0f)
       val locStrength = n.data.get(Subject(subject, "loc")).map(_.strength).getOrElse(0f)
       val progStrength = n.data.get(Subject(subject, "prog")).map(_.strength).getOrElse(0f)
-      g.setColor(new Color(newsStrength, locStrength, progStrength, 1f))
+      g.setColor(new Color(newsStrength, locStrength, progStrength))
       g.fill(new Rectangle(n.position.x * PixelSize, n.position.y * PixelSize, PixelSize, PixelSize))
     }
+
+//    println("drew")
+//    val writers = ImageIO.getImageWritersByFormatName("jpeg")
+//    val imageWriter = writers.next()
+//    val pngparams = imageWriter.getDefaultWriteParam()
+//    println("configuring output")
+//    pngparams.setCompressionMode( ImageWriteParam.MODE_EXPLICIT )
+//    pngparams.setCompressionQuality( 0.1F )
+//    pngparams.setProgressiveMode( ImageWriteParam.MODE_DISABLED )
+//    pngparams.setDestinationType(new ImageTypeSpecifier( buffer.getColorModel(), buffer.getSampleModel()))
 
     ImageIO.write(buffer, "png", response.getOutputStream)
 

@@ -36,6 +36,7 @@ object Network {
   }
 
   def tick {
+    nodes.values.foreach(_.clean)
     nodes.values.foreach(_.tick(step))
     step = step + 1
   }

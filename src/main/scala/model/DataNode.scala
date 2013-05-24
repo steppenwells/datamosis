@@ -45,18 +45,23 @@ class DataNode(val position: Position) {
     }
   }
 
-  def tick(step: Long) {
+  def clean() {
     synchronized {
 
       data = data.mapValues(d => d.copy(strength = d.strength * model.Message.timeDecayFactors(d.`type`)))
+      data = data.filter { case (_, d) => d.strength > 0.15 }
+    }
+  }
 
+  def tick(step: Long) {
 
+    synchronized {
 
       for (
         (m, s) <- inflightMessages;
         node <- neighbours
       ) {
-        if (s == step){
+        if (s == step && m.strength > 0.15f){
           m match {
             case n: NewsMessage => node.receiveMessage(m, s + 1)
             case l: LocationMessage => node.receiveMessage(l.copy(strength = l.strength * Message.propDecayFactors("loc")), s + 1)
